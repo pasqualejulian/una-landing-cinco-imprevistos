@@ -1,0 +1,11 @@
+import {chromium} from 'playwright';
+const browser = await chromium.launch({headless:true,args:['--use-angle=swiftshader','--enable-unsafe-swiftshader']});
+const page = await browser.newPage({viewport:{width:1440,height:900}});
+page.on('console',m=>console.log(m.type()+': '+m.text()));
+page.on('pageerror',e=>console.log('PAGEERROR: '+e.message));
+await page.goto('http://127.0.0.1:4173/');
+await page.getByRole('button',{name:'Jugar con sonido'}).click({timeout:30000});
+await page.waitForFunction(()=>window.OMG?.ui);
+console.log(JSON.stringify(await page.evaluate(()=>({state:OMG.snapshot(),ui:OMG.ui})),null,2));
+await page.screenshot({path:'qa/web-inicial.png'});
+await browser.close();

@@ -1,0 +1,58 @@
+title = Antes de pedirle otro cambio
+cards = add commit
+
+[description]
+
+La primera versión de la landing ya está lista. Antes de seguir vibecodeando, guardala en Git.
+
+Un commit es una foto con nombre de un estado del proyecto. Primero prepará `index.html` y `styles.css`; después creá el commit.
+
+---
+
+Pista 1: usá la carta add sobre cada archivo para preparar sus versiones actuales.
+
+---
+
+Pista 2: cuando ambos archivos estén preparados, usá la carta commit. Escribí un mensaje breve y guardalo con Cmd+S.
+
+[cli]
+
+Alternativa en la terminal: `git add index.html styles.css` y después `git commit -m "Guardar primera versión de la landing"`.
+
+[congrats]
+
+Guardaste un punto seguro antes de pedir otro cambio. En un proyecto con IA, hacé esto cada vez que llegues a una versión que no querés perder.
+
+[setup]
+
+git config user.name "Diseñador"
+git config user.email "disenador@example.com"
+printf '%s\n' '# Landing de ideas' > README.md
+git add README.md
+git commit -m "Iniciar proyecto"
+git rev-parse HEAD > .git/pilot-main
+printf '%s\n' '<!doctype html>' '<html lang="es">' '<meta charset="utf-8">' '<title>Próxima idea</title>' '<link rel="stylesheet" href="styles.css">' '<main>' '  <h1>Dale lugar a tu próxima idea</h1>' '  <p>Una página simple para empezar.</p>' '  <a class="cta" href="#primer-paso">Empezá ahora</a>' '  <section id="primer-paso">Tu primer paso empieza acá.</section>' '</main>' > index.html
+printf '%s\n' '.cta {' '  background: #6750a4;' '  color: #fff;' '  padding: 12px 20px;' '  border-radius: 8px;' '}' '' '.cta:focus-visible {' '  outline: 3px solid #202124;' '  outline-offset: 4px;' '}' > styles.css
+cp index.html .git/pilot-expected-index.html
+cp styles.css .git/pilot-expected-styles.css
+
+[win]
+
+# Estás en main y creaste un commit nuevo.
+test "$(git symbolic-ref --short HEAD)" = "main" || return 1
+git merge-base --is-ancestor "$(cat .git/pilot-main)" HEAD || return 1
+test "$(git rev-list --count HEAD)" -ge "2" || return 1
+
+# El commit contiene exactamente la landing esperada.
+test "$(git ls-tree -r --name-only HEAD)" = "$(printf '%s\n' README.md index.html styles.css)" || return 1
+git ls-tree HEAD README.md | grep -q '^100644 blob ' || return 1
+git ls-tree HEAD index.html | grep -q '^100644 blob ' || return 1
+git ls-tree HEAD styles.css | grep -q '^100644 blob ' || return 1
+test "$(git show HEAD:README.md)" = "# Landing de ideas" || return 1
+git show HEAD:index.html | cmp - .git/pilot-expected-index.html || return 1
+git show HEAD:styles.css | cmp - .git/pilot-expected-styles.css || return 1
+
+# No quedaron cambios pendientes ni archivos nuevos.
+git diff --quiet || return 1
+git diff --cached --quiet || return 1
+test -z "$(git ls-files --others --exclude-standard)" || return 1

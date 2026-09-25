@@ -1,0 +1,120 @@
+[gd_scene load_steps=5 format=2]
+
+[ext_resource path="res://scenes/repository.gd" type="Script" id=1]
+[ext_resource path="res://styles/theme.tres" type="Theme" id=2]
+[ext_resource path="res://fonts/big.tres" type="DynamicFont" id=3]
+[ext_resource path="res://scenes/drop_area.tscn" type="PackedScene" id=4]
+
+[node name="Repository" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+rect_clip_content = true
+mouse_filter = 2
+theme = ExtResource( 2 )
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Rows" type="HSplitContainer" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+[node name="RepoVis" type="Control" parent="Rows"]
+margin_right = 1920.0
+margin_bottom = 1080.0
+mouse_filter = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="SeparatorLine" type="ColorRect" parent="Rows/RepoVis"]
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_top = -4.0
+mouse_filter = 2
+color = Color( 0.196078, 0.184314, 0.435294, 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="DropArea" parent="Rows/RepoVis/SeparatorLine" instance=ExtResource( 4 )]
+position = Vector2( 71.6342, -29.3427 )
+
+[node name="Label" type="Label" parent="Rows/RepoVis"]
+anchor_top = 1.0
+anchor_bottom = 1.0
+margin_left = 7.06314
+margin_top = -64.5048
+margin_right = 229.063
+margin_bottom = -8.50476
+custom_fonts/font = ExtResource( 3 )
+text = "Nombre del repo"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="IndexLabel" type="Label" parent="Rows/RepoVis"]
+visible = false
+margin_left = 21.0
+margin_top = 65.0
+margin_right = 377.0
+margin_bottom = 108.0
+text = "Índice:"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Button" type="Button" parent="Rows/RepoVis"]
+visible = false
+margin_left = 36.5602
+margin_top = 67.9891
+margin_right = 119.56
+margin_bottom = 109.989
+text = "Actualizar"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="SimplifyCheckbox" type="CheckBox" parent="Rows/RepoVis"]
+visible = false
+anchor_left = 1.0
+anchor_right = 1.0
+margin_left = -208.715
+margin_top = 17.9594
+margin_right = -15.7146
+margin_bottom = 42.9594
+focus_mode = 0
+enabled_focus_mode = 0
+text = "Ocultar árboles y blobs"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Nodes" type="Control" parent="Rows/RepoVis"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_bottom = -6.10352e-05
+mouse_filter = 2
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Path" type="LineEdit" parent="Rows/RepoVis"]
+visible = false
+margin_left = 23.0
+margin_top = 12.0
+margin_right = 374.0
+margin_bottom = 61.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+[connection signal="mouse_entered" from="." to="." method="_on_mouse_entered"]
+[connection signal="mouse_exited" from="." to="." method="_on_mouse_exited"]
+[connection signal="pressed" from="Rows/RepoVis/Button" to="." method="update_everything"]
+[connection signal="toggled" from="Rows/RepoVis/SimplifyCheckbox" to="." method="set_simplified_view"]
+[connection signal="text_entered" from="Rows/RepoVis/Path" to="." method="set_path"]

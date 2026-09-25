@@ -1,0 +1,62 @@
+title = Probemos otra dirección
+cards = branch checkout add commit
+
+[description]
+
+La landing fue aprobada, pero querés probar un botón verde. Explorá esa dirección sin tocar la versión aprobada de `main`.
+
+Una rama es una línea de trabajo paralela. Creá la rama `exploracion-cta`, viajá a ella, cambiá el fondo del botón a `#146c43` y guardá el cambio en un commit.
+
+---
+
+Pista 1: usá la carta branch y escribí `exploracion-cta`. Después viajá a esa rama con checkout.
+
+---
+
+Pista 2: abrí `styles.css`, reemplazá `#6750a4` por `#146c43` y guardá con Cmd+S. Prepará el archivo y creá el commit.
+
+[cli]
+
+Alternativa en la terminal: `git branch exploracion-cta`, `git checkout exploracion-cta`, editá el archivo y usá `git add styles.css` seguido de `git commit -m "Explorar CTA verde"`.
+
+[congrats]
+
+La exploración vive en su propia rama y `main` sigue intacta. Usá una rama para probar una dirección visual sin poner en riesgo la versión aprobada.
+
+[setup]
+
+git config user.name "Diseñador"
+git config user.email "disenador@example.com"
+printf '%s\n' '<!doctype html>' '<html lang="es">' '<meta charset="utf-8">' '<title>Próxima idea</title>' '<link rel="stylesheet" href="styles.css">' '<main>' '  <h1>Dale lugar a tu próxima idea</h1>' '  <p>Una página simple para empezar.</p>' '  <a class="cta" href="#primer-paso">Empezá ahora</a>' '  <section id="primer-paso">Tu primer paso empieza acá.</section>' '</main>' > index.html
+printf '%s\n' '.cta {' '  background: #6750a4;' '  color: #fff;' '  padding: 12px 20px;' '  border-radius: 8px;' '}' '' '.cta:focus-visible {' '  outline: 3px solid #202124;' '  outline-offset: 4px;' '}' > styles.css
+git add index.html styles.css
+git commit -m "Agregar landing aprobada"
+git rev-parse HEAD > .git/pilot-main
+cp index.html .git/pilot-expected-index.html
+cp styles.css .git/pilot-expected-main-styles.css
+sed 's/#6750a4/#146c43/' styles.css > .git/pilot-expected-exploration-styles.css
+
+[win]
+
+# Estás trabajando en la rama exploracion-cta.
+test "$(git symbolic-ref --short HEAD)" = "exploracion-cta" || return 1
+
+# main conserva exactamente la versión aprobada.
+test "$(git rev-parse main)" = "$(cat .git/pilot-main)" || return 1
+
+# La exploración agrega un solo commit descendiente y solo cambia el CSS.
+git merge-base --is-ancestor main exploracion-cta || return 1
+test "$(git rev-list --count main..exploracion-cta)" = "1" || return 1
+test "$(git diff --name-only main...exploracion-cta)" = "styles.css" || return 1
+
+# La rama conserva el contenido y usa el verde esperado.
+test "$(git ls-tree -r --name-only exploracion-cta)" = "$(printf '%s\n' index.html styles.css)" || return 1
+git ls-tree exploracion-cta index.html | grep -q '^100644 blob ' || return 1
+git ls-tree exploracion-cta styles.css | grep -q '^100644 blob ' || return 1
+git show exploracion-cta:index.html | cmp - .git/pilot-expected-index.html || return 1
+git show exploracion-cta:styles.css | cmp - .git/pilot-expected-exploration-styles.css || return 1
+
+# No quedaron cambios pendientes.
+git diff --quiet || return 1
+git diff --cached --quiet || return 1
+test -z "$(git ls-files --others --exclude-standard)" || return 1

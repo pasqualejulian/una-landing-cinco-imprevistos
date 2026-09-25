@@ -1,0 +1,69 @@
+title = La IA cambió algo de más
+cards = show revert
+
+[description]
+
+La IA eliminó el indicador de foco del botón. Después mejoró su texto, y ese cambio sí fue aprobado.
+
+Inspeccioná el historial y revertí solamente el commit `Quitar indicador de foco`. Revertir crea un commit nuevo que deshace ese cambio sin borrar lo que vino después.
+
+---
+
+Pista 1: usá show para inspeccionar qué cambió en cada commit. Buscá el que eliminó `:focus-visible`.
+
+---
+
+Pista 2: arrastrá revert hasta el commit incorrecto. El botón debe conservar el texto `Probá tu primera idea` y recuperar el foco visible.
+
+[cli]
+
+Alternativa en la terminal: mirá `git log --oneline` y `git show COMMIT`. Después ejecutá `git revert COMMIT` reemplazando COMMIT por su identificador. Guardá el mensaje propuesto con Cmd+S.
+
+[congrats]
+
+Recuperaste la accesibilidad sin perder el texto aprobado ni reescribir la historia. Cuando un cambio ya convive con otros, revertí solo el commit incorrecto.
+
+[setup]
+
+git config user.name "Diseñador"
+git config user.email "disenador@example.com"
+printf '%s\n' '<!doctype html>' '<html lang="es">' '<meta charset="utf-8">' '<title>Próxima idea</title>' '<link rel="stylesheet" href="styles.css">' '<main>' '  <h1>Dale lugar a tu próxima idea</h1>' '  <p>Una página simple para empezar.</p>' '  <a class="cta" href="#primer-paso">Empezá ahora</a>' '  <section id="primer-paso">Tu primer paso empieza acá.</section>' '</main>' > index.html
+printf '%s\n' '.cta {' '  background: #6750a4;' '  color: #fff;' '  padding: 12px 20px;' '  border-radius: 8px;' '}' '' '.cta:focus-visible {' '  outline: 3px solid #202124;' '  outline-offset: 4px;' '}' > styles.css
+git add index.html styles.css
+git commit -m "Agregar landing"
+git rev-parse HEAD > .git/pilot-landing
+printf '%s\n' '.cta {' '  background: #6750a4;' '  color: #fff;' '  padding: 12px 20px;' '  border-radius: 8px;' '}' > styles.css
+git add styles.css
+git commit -m "Quitar indicador de foco"
+git rev-parse HEAD > .git/pilot-bad-focus
+sed 's/Empezá ahora/Probá tu primera idea/' index.html > .git/pilot-index-next
+mv .git/pilot-index-next index.html
+git add index.html
+git commit -m "Mejorar texto del botón"
+git rev-parse HEAD > .git/pilot-approved-text
+cp index.html .git/pilot-expected-index.html
+printf '%s\n' '.cta {' '  background: #6750a4;' '  color: #fff;' '  padding: 12px 20px;' '  border-radius: 8px;' '}' '' '.cta:focus-visible {' '  outline: 3px solid #202124;' '  outline-offset: 4px;' '}' > .git/pilot-expected-styles.css
+
+[win]
+
+# Conservaste los tres commits originales en main.
+test "$(git symbolic-ref --short HEAD)" = "main" || return 1
+git merge-base --is-ancestor "$(cat .git/pilot-landing)" main || return 1
+git merge-base --is-ancestor "$(cat .git/pilot-bad-focus)" main || return 1
+git merge-base --is-ancestor "$(cat .git/pilot-approved-text)" main || return 1
+
+# Agregaste un solo commit encima del texto aprobado.
+test "$(git rev-parse HEAD^)" = "$(cat .git/pilot-approved-text)" || return 1
+test "$(git rev-list --count $(cat .git/pilot-approved-text)..HEAD)" = "1" || return 1
+
+# El texto aprobado sigue y el foco visible volvió.
+test "$(git ls-tree -r --name-only HEAD)" = "$(printf '%s\n' index.html styles.css)" || return 1
+git ls-tree HEAD index.html | grep -q '^100644 blob ' || return 1
+git ls-tree HEAD styles.css | grep -q '^100644 blob ' || return 1
+git show HEAD:index.html | cmp - .git/pilot-expected-index.html || return 1
+git show HEAD:styles.css | cmp - .git/pilot-expected-styles.css || return 1
+
+# No quedaron cambios pendientes.
+git diff --quiet || return 1
+git diff --cached --quiet || return 1
+test -z "$(git ls-files --others --exclude-standard)" || return 1

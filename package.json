@@ -1,0 +1,26 @@
+{
+  "name": "una-landing-cinco-imprevistos",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node build-site.mjs",
+    "dev": "node serve.mjs",
+    "test": "node --test tests/git-runtime.test.mjs tests/campaign-runtime.test.mjs",
+    "test:browser": "node tests/campaign-browser.mjs",
+    "export:godot": "python3 build.py"
+  },
+  "dependencies": {
+    "diff": "9.0.0",
+    "isomorphic-git": "1.42.2",
+    "memfs": "4.79.0"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2",
+    "esbuild-plugins-node-modules-polyfill": "1.8.3",
+    "playwright": "1.62.1"
+  },
+  "engines": {
+    "node": "22.x"
+  }
+}

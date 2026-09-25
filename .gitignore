@@ -1,0 +1,9 @@
+/node_modules/
+/dist/
+/qa/
+/.vercel/
+/.build-godot/
+/godot-project/.import/
+.env*
+.DS_Store
+__pycache__/

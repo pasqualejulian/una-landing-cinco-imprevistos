@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Una landing, cinco imprevistos · Oh My Git!</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#121212;color:#f3f3f3;font:16px system-ui,sans-serif}canvas{display:block;width:100%;height:100%;outline:none;touch-action:none}#cover{position:fixed;inset:0;display:grid;place-items:center;background:#121212;z-index:2}#cover[hidden]{display:none}.intro{width:min(500px,85vw)}h1{font-size:38px;margin:0 0 18px;font-weight:650;line-height:1.05}p{line-height:1.5;color:#cbd1df}button{padding:14px 22px;font:inherit;background:#88a9ea;color:#111928;border:0;border-radius:8px;cursor:pointer}button:focus-visible{outline:3px solid #77e3bc;outline-offset:4px}button:disabled{opacity:.55;cursor:wait}a{color:#cbd1df}#status{min-height:48px}.credits{font-size:13px;margin-top:30px;color:#989fb1}.notice{font-size:14px}progress{width:100%;accent-color:#77e3bc}
+</style>
+$GODOT_HEAD_INCLUDE
+</head>
+<body>
+<canvas id="canvas" tabindex="0" aria-label="Juego Oh My Git: cartas de Git, historial y primera misión"></canvas>
+<div id="cover"><div class="intro">
+<h1>Una landing.<br>Cinco imprevistos.</h1>
+<p>Un experimento de wording, un pedido de último momento y alguien que se confundió de link. Construí tu timeline jugando las cartas de Git.</p>
+<button id="play" disabled>Preparando el juego…</button>
+<p id="status" role="status">Cargando cartas, sonido y tu repositorio.</p>
+<progress id="progress"></progress>
+<p class="notice">Jugá con mouse y teclado. Tu avance se guarda en este navegador.</p>
+<p class="credits">Basado en <a href="https://ohmygit.org/" target="_blank" rel="noopener">Oh My Git!</a> de blinry y bleeptrack.<br><a href="LICENSE.md" target="_blank">Licencia</a> · <a href="THIRD-PARTY-NOTICES.txt" target="_blank">Créditos</a></p>
+</div></div>
+<script src="$GODOT_URL"></script>
+<script src="git-browser.js"></script>
+<script>
+const engine = new Engine($GODOT_CONFIG);
+const cover=document.querySelector('#cover'), play=document.querySelector('#play'), status=document.querySelector('#status'), progress=document.querySelector('#progress');
+function fail(error){console.error(error);status.textContent='No se pudo iniciar el juego. '+(error.message||error);play.disabled=true;progress.hidden=true;}
+async function prepare(){
+ if(!Engine.isWebGLAvailable()){throw new Error('Este navegador no tiene WebGL disponible.');}
+ const config=await fetch('mission-config.json').then(r=>{if(!r.ok)throw new Error('No se pudo cargar la misión.');return r.json()});
+ await GitBrowser.prepareGit(config);
+ // Load the actual Godot scene behind the cover. The first user gesture
+ // resumes the browser AudioContext through Godot's own input handler.
+ await engine.startGame({canvas:document.querySelector('#canvas'),onProgress:(current,total)=>{if(total){progress.value=current;progress.max=total;}},onPrintError:(...args)=>console.error(...args)});
+ play.disabled=false;play.textContent='Jugar con sonido';status.textContent='Todo listo. Tu partida se retoma donde la dejaste.';progress.hidden=true;
+}
+play.addEventListener('click',()=>{cover.hidden=true;document.querySelector('#canvas').focus();});
+prepare().catch(fail);
+</script>
+</body>
+</html>
