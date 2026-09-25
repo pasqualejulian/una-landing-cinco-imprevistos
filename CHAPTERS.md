@@ -38,4 +38,4 @@ Las flechas de este esquema siguen el tiempo. En el canvas original, los enlaces
 
 `npm run test:browser` juega los cinco capítulos con mouse y teclado en Chromium, comprueba audio, arrastre de cartas y nodos, bifurcación, merge, rechazos, persistencia y reinicio. Los snapshots solo se usan para observar estado y localizar elementos, no para resolver las acciones del juego.
 
-No se validó Safari, Firefox ni interacción táctil. 
+No se validó Safari, Firefox ni interacción táctil.

@@ -1,5 +1,7 @@
 # Una landing, cinco imprevistos
 
+**[Jugar en el navegador](https://una-landing-cinco-imprevistos.vercel.app/)**
+
 Un juego web para aprender Git construyendo una landing con IA. Elegís textos, atendés pedidos de último momento y ves crecer tu timeline con las cartas originales de **Oh My Git!**.
 
 Cinco capítulos, un solo repositorio:
